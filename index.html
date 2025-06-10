@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Knowledge Quiz</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+        }
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0; /* Light gray border */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+        .question-card:hover {
+            transform: translateY(-2px);
+        }
+        .answer-option {
+            background-color: #f8fafc; /* Lighter background for options */
+            border: 1px solid #cbd5e1; /* Gray border for options */
+        }
+        .answer-option.correct {
+            background-color: #d1fae5; /* Light green for correct */
+            border-color: #34d399; /* Green border */
+            color: #065f46; /* Darker green text */
+            font-weight: 600;
+        }
+        .answer-option.incorrect {
+            background-color: #fee2e2; /* Light red for incorrect */
+            border-color: #ef4444; /* Red border */
+            color: #991b1b; /* Darker red text */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+    <div class="max-w-4xl mx-auto py-8">
+        <h1 class="text-4xl sm:text-5xl font-bold text-center text-gray-800 mb-10 rounded-lg py-4 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg">
+            Business Knowledge Quiz
+        </h1>
+
+        <div id="quiz-container" class="space-y-8">
+            <!-- Questions will be loaded here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Store the JSON data directly within the script
+        const quizData = [
+            {
+                "question": "1. Válassza ki az alábbiak közül a vállalat alapvető céljait!",
+                "answers": [
+                    { "text": "alapvető cél, hogy a működés legyen jövedelmező", "is_correct": true },
+                    { "text": "alapvető, hogy feleljen meg a munkavállalók igényeinek", "is_correct": false },
+                    { "text": "alapvető, hogy a vállalat által kibocsátott termék vagy szolgáltatás elégítse ki a vevők szükségleteit", "is_correct": true }
+                ]
+            },
+            {
+                "question": "2. Jelölje meg, hogy az alábbi állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A vízió megfogalmazása egy több oldalas dokumentumban történik.", "is_correct": true },
+                    { "text": "A küldetésben a vállalkozások alapvető céljaikat fogalmazzák meg.", "is_correct": true },
+                    { "text": "A küldetés elkészítése a bürokraták, szakalkalmazottak feladatkörébe tartozik.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "3. Válassza ki, hogy kinek a feladatkörébe tartoznak a szakmai stratégiák kidolgozása!",
+                "answers": [
+                    { "text": "a tulajdonosok feladata", "is_correct": false },
+                    { "text": "a törzskari vezetők feladata", "is_correct": false },
+                    { "text": "a funkcionális vezetők feladata", "is_correct": true }
+                ]
+            },
+            {
+                "question": "4. Válassza ki, hogy melyek tartoznak a versenystratégia fő tényezői közé!",
+                "answers": [
+                    { "text": "a vevők alkupozíciója", "is_correct": true },
+                    { "text": "a kiegészítő termékek és azok fenyegetése", "is_correct": true },
+                    { "text": "a szállítók alkupozíciója", "is_correct": true }
+                ]
+            },
+            {
+                "question": "5. Jelölje meg, hogy az alábbi állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "Az összpontosító versenystratégia egyetlen vagy kevés kiválasztott vevőre koncentrál", "is_correct": true },
+                    { "text": "Az összpontosító versenystratégia mindig a legjobb eredményeket hozza a nagyvállalatoknál", "is_correct": false },
+                    { "text": "Az összpontosító versenystratégia egyedi termék/szolgáltatás létrehozására is irányulhat", "is_correct": true }
+                ]
+            },
+            {
+                "question": "6. Válassza ki, hogy az alábbiak közül melyik jellemző a termék megkülönböztetésén alapuló versenystratégiára!",
+                "answers": [
+                    { "text": "a jó minőség", "is_correct": true },
+                    { "text": "az alacsony ár", "is_correct": false },
+                    { "text": "a márkanev ismeretségére való törekvés", "is_correct": true }
+                ]
+            },
+            {
+                "question": "7. A költségvezető stratégia esetén nem jellemző...",
+                "answers": [
+                    { "text": "a magas ár", "is_correct": true },
+                    { "text": "a nagyvállalati méret", "is_correct": true },
+                    { "text": "a márkanévre vonatkozó intenzív reklám", "is_correct": true }
+                ]
+            },
+            {
+                "question": "1. Válassza ki, hogy melyik lehet tervezési időtáv!",
+                "answers": [
+                    { "text": "egyéves", "is_correct": true },
+                    { "text": "operatív", "is_correct": false },
+                    { "text": "azonnali", "is_correct": true }
+                ]
+            },
+            {
+                "question": "2. Válassza ki a különféle időtávú tervekre jellemzőket!",
+                "answers": [
+                    { "text": "készülhetnek összehangoltan", "is_correct": true },
+                    { "text": "általában egymástól függetlenek", "is_correct": false },
+                    { "text": "a stratégiai terv alapján készíthetünk üzleti tervet", "is_correct": true }
+                ]
+            },
+            {
+                "question": "3. Jelölje meg, hogy a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A tervek mindig csak belső használatra készülnek", "is_correct": false },
+                    { "text": "Üzleti terv készülhet hitelfelvételhez.", "is_correct": true },
+                    { "text": "A tervek mindig az egész vállalatra vonatkoznak", "is_correct": false }
+                ]
+            },
+            {
+                "question": "4. Válassza ki az alábbiak közül az üzleti tervre jellemzőket!",
+                "answers": [
+                    { "text": "az üzleti terv igazodik a stratégiai terv előirányzataihoz", "is_correct": true },
+                    { "text": "a vállalati tevékenység egy részének terve", "is_correct": false },
+                    { "text": "mindig egy évre készül", "is_correct": false }
+                ]
+            },
+            {
+                "question": "5. Jelölje meg, hogy a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A stratégiai terv tartalmaz funkcionális fejezeteket.", "is_correct": true },
+                    { "text": "A stratégiai terv időhorizontja általában egy év.",
+                        "is_correct": true },
+                    { "text": "A stratégiai terv tartalmaz hat fejlesztési fejezetet.",
+                        "is_correct": false }
+                ]
+            },
+            {
+                "question": "6. Válassza ki, hogy az alábbiak közül melyek jellemzőek a tervezésre!",
+                "answers": [
+                    { "text": "Mindig hosszú időszakra szól", "is_correct": false },
+                    { "text": "Nem csak a tervek elkészítése fontos", "is_correct": true },
+                    { "text": "Feladatát elláthatja állandó belső szervezet is", "is_correct": true }
+                ]
+            },
+            {
+                "question": "1. Milyen jogi formában működhet a vállalkozás?",
+                "answers": [
+                    { "text": "gazdasági társaságként", "is_correct": true },
+                    { "text": "önkormányzatként", "is_correct": false },
+                    { "text": "alkalmazottként", "is_correct": false }
+                ]
+            },
+            {
+                "question": "2. Jelölje meg, hogy az alábbi állítások közül melyek igazak vagy hamisak!",
+                "answers": [
+                    { "text": "Az egyéni vállalkozó korlátlanul felelős a vállalkozásért.", "is_correct": false },
+                    { "text": "Az egyéni vállalkozó nem szerepelhet a cégjegyzékben.", "is_correct": true },
+                    { "text": "Az egyéni vállalkozó társasági szerződést köt.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "3. Jelölje meg, hogy az alábbi állítások közül melyek igazak vagy hamisak!",
+                "answers": [
+                    { "text": "A közkereseti társaság vezetője az ügyvezető.", "is_correct": true },
+                    { "text": "A korlátolt felelősségű társaság vezetője az ügyvezető.", "is_correct": true },
+                    { "text": "A közkereseti társaság jogi személy.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "4. Melyik gazdasági szervezetre jellemzőek az alábbiak? saját üzletrészének tulajdonosa lehet; tagjának felelőssége korlátozott; jogi személy",
+                "answers": [
+                    { "text": "korlátolt felelősségű társaság", "is_correct": true },
+                    { "text": "betéti társaság", "is_correct": false },
+                    { "text": "egyesület", "is_correct": false }
+                ]
+            },
+            {
+                "question": "5. Melyik a részvénytársaság tulajdonosi szervezete?",
+                "answers": [
+                    { "text": "a vezetőség", "is_correct": false },
+                    { "text": "az igazgatósági elnök", "is_correct": false },
+                    { "text": "közgyűlés", "is_correct": true }
+                ]
+            },
+            {
+                "question": "6. Válassza ki az alábbiak közül azt, amely nem igaz a szövetkezetekre!",
+                "answers": [
+                    { "text": "minden tagjának azonos jogai vannak", "is_correct": false },
+                    { "text": "jogi személy", "is_correct": true },
+                    { "text": "vezetője az ügyvezető", "is_correct": true }
+                ]
+            },
+            {
+                "question": "1. Az alábbiak közül melyek jelentenek vállalati gazdaságtan felfogást?",
+                "answers": [
+                    { "text": "business administration", "is_correct": false },
+                    { "text": "strategy business", "is_correct": true },
+                    { "text": "Betriebswirtschaft", "is_correct": false }
+                ]
+            },
+            {
+                "question": "2. Az alább felsoroltak között melyek jellemzik a vállalatot?",
+                "answers": [
+                    { "text": "nem profitorientált szervezet", "is_correct": false },
+                    { "text": "munkahely", "is_correct": true },
+                    { "text": "állandó szervezet", "is_correct": true }
+                ]
+            },
+            {
+                "question": "3. Mi minősül belső tranzakciónak?",
+                "answers": [
+                    { "text": "a vállalati iroda használata", "is_correct": true },
+                    { "text": "üzleti tárgyalásra utazni vonattal", "is_correct": true },
+                    { "text": "üzleti ebéd a város legjobb éttermében", "is_correct": false }
+                ]
+            },
+            {
+                "question": "4. Mi nem befolyásolja a vállalat nagyságát?",
+                "answers": [
+                    { "text": "az értékesítési piac nagysága", "is_correct": false },
+                    { "text": "a vállalati tevékenység jellege", "is_correct": true },
+                    { "text": "az állami előírások száma", "is_correct": true }
+                ]
+            },
+            {
+                "question": "5. Az alábbiak közül melyek részei az autóipari vertikumnak?",
+                "answers": [
+                    { "text": "a motorgyártás", "is_correct": true },
+                    { "text": "a taxi-szolgáltatás", "is_correct": false },
+                    { "text": "a karosszérialemezek gyártása", "is_correct": true }
+                ]
+            },
+            {
+                "question": "6. Jelölje meg, hogy az alábbi állítás igaz vagy hamis!",
+                "answers": [
+                    { "text": "B to b ügylet, ha kötegelt kábelt szállítunk a telefongyárnak.", "is_correct": true },
+                    { "text": "B to b ügylet, ha motort szállítunk be az autógyárnak.", "is_correct": false },
+                    { "text": "Nem számít b to b ügyletnek egy kész autó eladása.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "7. Az alábbiak közül melyik folyamat egy vállalat core business-e?",
+                "answers": [
+                    { "text": "az autógyár számára a szállítók által végzett munka", "is_correct": false },
+                    { "text": "az alvállalkozóknak kiadott tevékenység az építőiparban", "is_correct": false },
+                    { "text": "az autó összeszerelése az autógyárban", "is_correct": true }
+                ]
+            },
+            {
+                "question": "8. Melyik nem lehet vállalatgeneráló tényező?",
+                "answers": [
+                    { "text": "a konjunktúra", "is_correct": true },
+                    { "text": "az állam gazdaságpolitikai intézkedése", "is_correct": false },
+                    { "text": "a külföldi tőke eltávozása", "is_correct": true }
+                ]
+            },
+            {
+                "question": "9. Az alábbiak közül melyek tartoznak a vállalati életciklushoz?",
+                "answers": [
+                    { "text": "a férfikor", "is_correct": true },
+                    { "text": "az öregkor", "is_correct": false },
+                    { "text": "a háborús konjunktúra", "is_correct": false }
+                ]
+            },
+            {
+                "question": "6. Válassza ki az alábbiak közül azt, amely nem igaz a szövetkezetekre!",
+                "answers": [
+                    { "text": "minden tagjának azonos jogai vannak", "is_correct": false },
+                    { "text": "jogi személy", "is_correct": true },
+                    { "text": "vezetője az ügyvezető", "is_correct": true }
+                ]
+            },
+            {
+                "question": "7. Az alábbi állítások közül melyik igaz vagy hamis?",
+                "answers": [
+                    { "text": "Üzleti tevékenységet végezhet alapítvány.", "is_correct": true },
+                    { "text": "Üzleti tevékenységet nem végezhet egyesület.", "is_correct": false },
+                    { "text": "Üzleti tevékenységet végezhet szövetkezet.", "is_correct": true }
+                ]
+            },
+            {
+                "question": "8. Milyen új vállalkozási formák lehetségesek 2004. május 1. óta Magyarországon is?",
+                "answers": [
+                    { "text": "az európai korlátolt felelősségű társaság", "is_correct": false },
+                    { "text": "az európai szövetkezet", "is_correct": true },
+                    { "text": "az európai részvénytársaság", "is_correct": true }
+                ]
+            },
+            {
+                "question": "1. Az alábbiak közül melyek részei a vállalati környezeti tényezők nagy csoportjának?",
+                "answers": [
+                    { "text": "a politikai környezet", "is_correct": true },
+                    { "text": "a stratégiai környezet", "is_correct": true },
+                    { "text": "a társadalmi környezet", "is_correct": true }
+                ]
+            },
+            {
+                "question": "2. Melyik eleme a vállalat politikai környezetének?",
+                "answers": [
+                    { "text": "a szállítók befolyása", "is_correct": false },
+                    { "text": "a vevők", "is_correct": false },
+                    { "text": "a demográfiai helyzet", "is_correct": true }
+                ]
+            },
+            {
+                "question": "3. Jelölje meg, hogy az alábbi állítások igazak, vagy hamisak!",
+                "answers": [
+                    { "text": "Az üzleti etika a helyes üzleti viselkedésről szól.", "is_correct": true },
+                    { "text": "Az üzleti etika hozzájárulhat a szerződések költségének csökkentéséhez.", "is_correct": false },
+                    { "text": "Az üzleti etika csökkenti a partnerek közötti bizalmat.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "4. Melyek tartoznak az alábbiak közül a PEST-analízis tényezőcsoportjaihoz?",
+                "answers": [
+                    { "text": "az épített környezet", "is_correct": false },
+                    { "text": "a természeti környezet", "is_correct": true },
+                    { "text": "a társadalmi környezet", "is_correct": true }
+                ]
+            },
+            {
+                "question": "5. Jelölje meg, hogy mely állítás igaz, melyik hamis!",
+                "answers": [
+                    { "text": "A PEST-analízis készítésekor mérhető tényezőket értékelünk.", "is_correct": true },
+                    { "text": "A PEST-analízis készítésekor nem rendelhetünk súlyszámokat az egyes tényezőkhöz.", "is_correct": false },
+                    { "text": "A PEST-analízis készítésekor súlyszámokat rendelhetünk a tényezőcsoportokhoz.", "is_correct": true }
+                ]
+            },
+            {
+                "question": "6. Döntse el, hogy az alábbi állítások igazak vagy hamisak!",
+                "answers": [
+                    { "text": "A vállalati stakeholderek között nem lehet bank.", "is_correct": false },
+                    { "text": "A vállalati stakeholderek rendelkezhetnek szavazati joggal.", "is_correct": true },
+                    { "text": "A vállalati stakeholderek különféle befolyással bírhatnak.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "1. Válassza ki az alábbiak közül a divizionális szervezeti formára jellemzőket!",
+                "answers": [
+                    { "text": "Az egyes divíziók valamilyen mértékben önállóak.", "is_correct": true },
+                    { "text": "A stratégiai feladatokat központi egységek látják el.", "is_correct": false },
+                    { "text": "A divíziók külön jogi személyek.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "2. Válassza ki az alábbi megállapítások közül azt, amely nem jellemző a lineáris szervezeti formára!",
+                "answers": [
+                    { "text": "a szervezet horizontálisan bővíthető", "is_correct": false },
+                    { "text": "a szervezeti egységek önállóak", "is_correct": true },
+                    { "text": "a szervezetre jellemző a szolgálati utak rendszere", "is_correct": false }
+                ]
+            },
+            {
+                "question": "3. Válassza ki az alábbiak közül a vállalati szervezeti szinteket!",
+                "answers": [
+                    { "text": "menedzserek", "is_correct": true },
+                    { "text": "képviselők", "is_correct": true },
+                    { "text": "bürokraták", "is_correct": false }
+                ]
+            },
+            {
+                "question": "4. Az alábbi állítások közül melyik igaz vagy hamis?",
+                "answers": [
+                    { "text": "A törzskar (staff) nem a végrehajtó szervezet része.", "is_correct": false },
+                    { "text": "A törzskar csak katonai szervezeteknél használt elem.", "is_correct": false },
+                    { "text": "A törzskar feladata mindig az ellenőrzés.", "is_correct": true }
+                ]
+            },
+            {
+                "question": "5. Válassza ki az alábbiak közül, hogy melyek jelentik a tulajdonosi funkciók gyakorlásának módját!",
+                "answers": [
+                    { "text": "közvetlen tulajdonosi felügyelet", "is_correct": true },
+                    { "text": "vagyonkezelőkön keresztül gyakorolt tulajdonlás", "is_correct": true },
+                    { "text": "ingatlankezelőkön keresztül gyakorolt tulajdonlás", "is_correct": false }
+                ]
+            },
+            {
+                "question": "6. Az alábbi állítások közül melyik igaz vagy hamis?",
+                "answers": [
+                    { "text": "Az organigráf szemléletesebb, mint az organigram.", "is_correct": true },
+                    { "text": "Az organigráfon csak a nevek és a beosztások szerepelnek.", "is_correct": true },
+                    { "text": "A news-vállalatok felépítése mátrix-rendszerű.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "1. Válassza ki, hogy a vállalatok vételenél melyik kifejezéseket használják!",
+                "answers": [
+                    { "text": "kivásárlás", "is_correct": true },
+                    { "text": "akvizíció", "is_correct": false },
+                    { "text": "stratégiai szövetség", "is_correct": false }
+                ]
+            },
+            {
+                "question": "2. Válassza ki, hogy az alábbiak közül melyik igaz a hálózatos vállalatcsoportra!",
+                "answers": [
+                    { "text": "a hálózatos vállalatcsoportban egy vezető vállalat van", "is_correct": false },
+                    { "text": "a hálózatos vállalatcsoportban több vezető erőközpont található", "is_correct": true },
+                    { "text": "a hálózatos vállalatcsoportban felismerhető a hierarchia", "is_correct": false }
+                ]
+            },
+            {
+                "question": "3. Válassza ki, hogy a közvetett tulajdonú vállalatcsoportnak melyik jellemzője!",
+                "answers": [
+                    { "text": "van a csoportban olyan vállalat, amely tulajdonos", "is_correct": true },
+                    { "text": "csak egy tulajdonosa lehet", "is_correct": false },
+                    { "text": "az állam szerepel mint eredeti tulajdonos", "is_correct": false }
+                ]
+            },
+            {
+                "question": "4. Jelölje meg, hogy az alábbi állítások igazak vagy hamisak!",
+                "answers": [
+                    { "text": "A stratégiai szövetség létrehozható beszerzésre.", "is_correct": true },
+                    { "text": "A vállalatcsoport tagjai között tulajdonosi kapcsolatok vannak.", "is_correct": true },
+                    { "text": "A konzorcium mindig vállalatcsoport.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "5. Válassza ki a következők közül a vállalatcsoportok építőköveit!",
+                "answers": [
+                    { "text": "közvetett tulajdon", "is_correct": true },
+                    { "text": "stratégiai szövetség", "is_correct": true },
+                    { "text": "kereszttulajdon", "is_correct": true }
+                ]
+            },
+            {
+                "question": "6. Jelölje meg, hogy az alábbi állítások közül melyek igazak vagy hamisak!",
+                "answers": [
+                    { "text": "A konszern csak horizontális kapcsolatokon alapul.", "is_correct": false },
+                    { "text": "A stratégiai szövetség irányulhat a közös kutatás-fejlesztésre.", "is_correct": true },
+                    { "text": "Magyarországon nincs klaszter.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "7. Válassza ki, hogy melyik együttműködési forma köthető egy meghatározott földrajzi helyhez, területhez!",
+                "answers": [
+                    { "text": "szindikátus", "is_correct": false },
+                    { "text": "stratégiai szövetség", "is_correct": false },
+                    { "text": "klaszter", "is_correct": true }
+                ]
+            },
+            {
+                "question": "1. Jelölje meg, hogy az alábbi állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A vállalati tulajdonjogok gyakorlása csak tulajdonosi szervezetek által lehetséges.", "is_correct": true },
+                    { "text": "A vállalati tulajdonjogok gyakorlása vagyonkezelő nélkül is lehetséges.", "is_correct": true },
+                    { "text": "A vállalati tulajdonjogok gyakorlása közvetlen irányítás nélkül nem lehetséges.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "2. Válassza ki, melyik tartozik az ingatlanértékelési fogalom körébe!",
+                "answers": [
+                    { "text": "a nettó érték", "is_correct": true },
+                    { "text": "a részvény napi értéke", "is_correct": false },
+                    { "text": "a bruttó érték", "is_correct": true }
+                ]
+            },
+            {
+                "question": "3. Jelölje meg, hogy az alábbi állítás igaz vagy hamis!",
+                "answers": [
+                    { "text": "A vállalatértékelés tényezői között nem szerepel a goodwill.", "is_correct": false },
+                    { "text": "A vállalatértékelés csak a pénzáramlás elemzésén alapszik.",
+                        "is_correct": false },
+                    { "text": "A vállalatértékelés egyik speciális esete a praxisok értékelése.", "is_correct": true }
+                ]
+            },
+            {
+                "question": "4. Az alábbi állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A törzskar a végrehajtó szervezet része.", "is_correct": true },
+                    { "text": "A törzskari egységek hagyományos eleme a belső ellenőrzés.", "is_correct": true },
+                    { "text": "Az első számú vezető a CEO.", "is_correct": true }
+                ]
+            },
+            {
+                "question": "5. Válassza ki, melyek a vállalatértékelési módszerek!",
+                "answers": [
+                    { "text": "tárgyi eszköz módszere", "is_correct": false },
+                    { "text": "stratégiai elemzés módszere", "is_correct": true },
+                    { "text": "üzlettárs-elemzés", "is_correct": false }
+                ]
+            },
+            {
+                "question": "6. Jelölje meg, hogy az alábbi állítások igazak, vagy hamisak!",
+                "answers": [
+                    { "text": "Az MVA belső mutató.", "is_correct": true },
+                    { "text": "A BSC mutatószám-rendszer.", "is_correct": false },
+                    { "text": "Az EVA a részvényárfolyamból számítható.", "is_correct": true }
+                ]
+            },
+            {
+                "question": "7. Válassza ki, hogy melyik szervezeti forma érvényes a következő: a vállalat nagy végrehajtó egységei bizonyos mértékű önállósággal rendelkeznek!",
+                "answers": [
+                    { "text": "a lineáris funkcionális felépítésű vállalatra", "is_correct": false },
+                    { "text": "a mátrix-szervezetű vállalatra", "is_correct": false },
+                    { "text": "a divizionális felépítésű vállalatra", "is_correct": true }
+                ]
+            },
+            {
+                "question": "8. Jelölje meg, hogy az alábbi állítások közül melyek igazak vagy hamisak!",
+                "answers": [
+                    { "text": "Az organigráf a vállalat működését jobban bemutatja, mint az organigram.", "is_correct": true },
+                    { "text": "A konszernben jogilag nem önálló társaságok egységes irányítás alatt állnak.", "is_correct": true },
+                    { "text": "Az önkormányzat lehet egy vállalatcsoport eredeti tulajdonosa.", "is_correct": true }
+                ]
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+
+        quizData.forEach((q, index) => {
+            const questionCard = document.createElement('div');
+            questionCard.className = 'question-card p-6 rounded-lg mb-6';
+
+            const questionText = document.createElement('h2');
+            questionText.className = 'text-xl font-semibold text-gray-900 mb-4';
+            questionText.textContent = q.question;
+            questionCard.appendChild(questionText);
+
+            const answersContainer = document.createElement('div');
+            answersContainer.className = 'space-y-3';
+
+            q.answers.forEach(answer => {
+                const answerOption = document.createElement('div');
+                // Apply base styling
+                answerOption.className = 'answer-option p-3 rounded-md cursor-pointer text-gray-700';
+
+                // Add correct/incorrect styling based on 'is_correct'
+                if (answer.is_correct) {
+                    answerOption.classList.add('correct');
+                    answerOption.innerHTML = `&#10003; ${answer.text}`; // Checkmark for correct
+                } else {
+                    answerOption.classList.add('incorrect');
+                    answerOption.innerHTML = `&#10007; ${answer.text}`; // X mark for incorrect
+                }
+
+                answersContainer.appendChild(answerOption);
+            });
+            questionCard.appendChild(answersContainer);
+            quizContainer.appendChild(questionCard);
+        });
+    </script>
+</body>
+</html>
