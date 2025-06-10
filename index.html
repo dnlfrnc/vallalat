@@ -12,29 +12,104 @@
             font-family: 'Inter', sans-serif;
             background-color: #f0f4f8; /* Light blue-gray background */
         }
-        .question-card {
+        .quiz-card {
             background-color: #ffffff;
             border: 1px solid #e2e8f0; /* Light gray border */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
             transition: transform 0.2s ease-in-out;
+            min-height: 400px; /* Ensure cards have a minimum height */
         }
-        .question-card:hover {
-            transform: translateY(-2px);
+        .answer-option-label {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem; /* rounded-lg */
+            background-color: #f8fafc;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            margin-bottom: 0.75rem; /* space-y-3 equivalent */
         }
-        .answer-option {
-            background-color: #f8fafc; /* Lighter background for options */
-            border: 1px solid #cbd5e1; /* Gray border for options */
+        .answer-option-label:hover {
+            background-color: #e2e8f0;
+            border-color: #94a3b8;
         }
-        .answer-option.correct {
-            background-color: #d1fae5; /* Light green for correct */
-            border-color: #34d399; /* Green border */
-            color: #065f46; /* Darker green text */
+        .answer-input[type="radio"] {
+            border-radius: 50%; /* Circle for radio buttons */
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        .answer-input[type="checkbox"] {
+            border-radius: 0.25rem; /* Square for checkboxes */
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        /* Styles for feedback */
+        .feedback-message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
             font-weight: 600;
+            text-align: center;
         }
-        .answer-option.incorrect {
-            background-color: #fee2e2; /* Light red for incorrect */
-            border-color: #ef4444; /* Red border */
-            color: #991b1b; /* Darker red text */
+        .feedback-correct {
+            background-color: #d1fae5; /* Green light */
+            color: #065f46;
+            border: 1px solid #34d399;
+        }
+        .feedback-incorrect {
+            background-color: #fee2e2; /* Red light */
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .submit-btn, .next-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .submit-btn {
+            background-color: #3b82f6; /* Blue */
+            color: #ffffff;
+        }
+        .submit-btn:hover:not(:disabled) {
+            background-color: #2563eb;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .submit-btn:disabled {
+            background-color: #93c5fd;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .next-btn {
+            background-color: #10b981; /* Emerald green */
+            color: #ffffff;
+        }
+        .next-btn:hover:not(:disabled) {
+            background-color: #059669;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .next-btn:disabled {
+            background-color: #a7f3d0;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .score-display {
+            background-color: #ecfeff; /* Light cyan */
+            color: #0f766e; /* Darker cyan */
+            border: 1px solid #2dd4bf;
+        }
+
+        /* Specific styling for Igaz/Hamis options to ensure consistency */
+        .answer-option-label input[type="radio"].igaz-hamis {
+            border-radius: 50%;
         }
     </style>
 </head>
@@ -44,120 +119,27 @@
             Business Knowledge Quiz
         </h1>
 
-        <div id="quiz-container" class="space-y-8">
-            <!-- Questions will be loaded here by JavaScript -->
+        <div id="quiz-container" class="quiz-card p-6 rounded-lg relative">
+            <h2 id="question-text" class="text-xl font-semibold text-gray-900 mb-6"></h2>
+            <div id="answers-container" class="space-y-4">
+                <!-- Answer options will be dynamically loaded here -->
+            </div>
+            <div id="feedback-message" class="feedback-message hidden"></div>
+            <div class="flex justify-between items-center mt-8">
+                <button id="submit-button" class="submit-btn" disabled>Submit Answer</button>
+                <button id="next-button" class="next-btn hidden" disabled>Next Question &rarr;</button>
+            </div>
+        </div>
+
+        <div id="results-container" class="quiz-card p-6 rounded-lg text-center hidden">
+            <h2 class="text-3xl font-semibold text-gray-900 mb-4">Quiz Completed!</h2>
+            <p id="score-text" class="text-2xl font-bold score-display p-4 rounded-lg"></p>
+            <button id="restart-button" class="submit-btn mt-6">Restart Quiz</button>
         </div>
     </div>
 
     <script>
-        // Store the JSON data directly within the script
         const quizData = [
-            {
-                "question": "1. Válassza ki az alábbiak közül a vállalat alapvető céljait!",
-                "answers": [
-                    { "text": "alapvető cél, hogy a működés legyen jövedelmező", "is_correct": true },
-                    { "text": "alapvető, hogy feleljen meg a munkavállalók igényeinek", "is_correct": false },
-                    { "text": "alapvető, hogy a vállalat által kibocsátott termék vagy szolgáltatás elégítse ki a vevők szükségleteit", "is_correct": true }
-                ]
-            },
-            {
-                "question": "2. Jelölje meg, hogy az alábbi állítások közül melyik igaz vagy hamis!",
-                "answers": [
-                    { "text": "A vízió megfogalmazása egy több oldalas dokumentumban történik.", "is_correct": true },
-                    { "text": "A küldetésben a vállalkozások alapvető céljaikat fogalmazzák meg.", "is_correct": true },
-                    { "text": "A küldetés elkészítése a bürokraták, szakalkalmazottak feladatkörébe tartozik.", "is_correct": false }
-                ]
-            },
-            {
-                "question": "3. Válassza ki, hogy kinek a feladatkörébe tartoznak a szakmai stratégiák kidolgozása!",
-                "answers": [
-                    { "text": "a tulajdonosok feladata", "is_correct": false },
-                    { "text": "a törzskari vezetők feladata", "is_correct": false },
-                    { "text": "a funkcionális vezetők feladata", "is_correct": true }
-                ]
-            },
-            {
-                "question": "4. Válassza ki, hogy melyek tartoznak a versenystratégia fő tényezői közé!",
-                "answers": [
-                    { "text": "a vevők alkupozíciója", "is_correct": true },
-                    { "text": "a kiegészítő termékek és azok fenyegetése", "is_correct": true },
-                    { "text": "a szállítók alkupozíciója", "is_correct": true }
-                ]
-            },
-            {
-                "question": "5. Jelölje meg, hogy az alábbi állítások közül melyik igaz vagy hamis!",
-                "answers": [
-                    { "text": "Az összpontosító versenystratégia egyetlen vagy kevés kiválasztott vevőre koncentrál", "is_correct": true },
-                    { "text": "Az összpontosító versenystratégia mindig a legjobb eredményeket hozza a nagyvállalatoknál", "is_correct": false },
-                    { "text": "Az összpontosító versenystratégia egyedi termék/szolgáltatás létrehozására is irányulhat", "is_correct": true }
-                ]
-            },
-            {
-                "question": "6. Válassza ki, hogy az alábbiak közül melyik jellemző a termék megkülönböztetésén alapuló versenystratégiára!",
-                "answers": [
-                    { "text": "a jó minőség", "is_correct": true },
-                    { "text": "az alacsony ár", "is_correct": false },
-                    { "text": "a márkanev ismeretségére való törekvés", "is_correct": true }
-                ]
-            },
-            {
-                "question": "7. A költségvezető stratégia esetén nem jellemző...",
-                "answers": [
-                    { "text": "a magas ár", "is_correct": true },
-                    { "text": "a nagyvállalati méret", "is_correct": true },
-                    { "text": "a márkanévre vonatkozó intenzív reklám", "is_correct": true }
-                ]
-            },
-            {
-                "question": "1. Válassza ki, hogy melyik lehet tervezési időtáv!",
-                "answers": [
-                    { "text": "egyéves", "is_correct": true },
-                    { "text": "operatív", "is_correct": false },
-                    { "text": "azonnali", "is_correct": true }
-                ]
-            },
-            {
-                "question": "2. Válassza ki a különféle időtávú tervekre jellemzőket!",
-                "answers": [
-                    { "text": "készülhetnek összehangoltan", "is_correct": true },
-                    { "text": "általában egymástól függetlenek", "is_correct": false },
-                    { "text": "a stratégiai terv alapján készíthetünk üzleti tervet", "is_correct": true }
-                ]
-            },
-            {
-                "question": "3. Jelölje meg, hogy a következő állítások közül melyik igaz vagy hamis!",
-                "answers": [
-                    { "text": "A tervek mindig csak belső használatra készülnek", "is_correct": false },
-                    { "text": "Üzleti terv készülhet hitelfelvételhez.", "is_correct": true },
-                    { "text": "A tervek mindig az egész vállalatra vonatkoznak", "is_correct": false }
-                ]
-            },
-            {
-                "question": "4. Válassza ki az alábbiak közül az üzleti tervre jellemzőket!",
-                "answers": [
-                    { "text": "az üzleti terv igazodik a stratégiai terv előirányzataihoz", "is_correct": true },
-                    { "text": "a vállalati tevékenység egy részének terve", "is_correct": false },
-                    { "text": "mindig egy évre készül", "is_correct": false }
-                ]
-            },
-            {
-                "question": "5. Jelölje meg, hogy a következő állítások közül melyik igaz vagy hamis!",
-                "answers": [
-                    { "text": "A stratégiai terv tartalmaz funkcionális fejezeteket.", "is_correct": true },
-                    { "text": "A stratégiai terv időhorizontja általában egy év.",
-                        "is_correct": true },
-                    { "text": "A stratégiai terv tartalmaz hat fejlesztési fejezetet.",
-                        "is_correct": false }
-                ]
-            },
-            {
-                "question": "6. Válassza ki, hogy az alábbiak közül melyek jellemzőek a tervezésre!",
-                "answers": [
-                    { "text": "Mindig hosszú időszakra szól", "is_correct": false },
-                    { "text": "Nem csak a tervek elkészítése fontos", "is_correct": true },
-                    { "text": "Feladatát elláthatja állandó belső szervezet is", "is_correct": true }
-                ]
-            },
             {
                 "question": "1. Milyen jogi formában működhet a vállalkozás?",
                 "answers": [
@@ -347,7 +329,8 @@
                 "answers": [
                     { "text": "A vállalati stakeholderek között nem lehet bank.", "is_correct": false },
                     { "text": "A vállalati stakeholderek rendelkezhetnek szavazati joggal.", "is_correct": true },
-                    { "text": "A vállalati stakeholderek különféle befolyással bírhatnak.", "is_correct": false }
+                    { "text": "A vállalati stakeholderek különféle befolyással bírhatnak.",
+                        "is_correct": false }
                 ]
             },
             {
@@ -474,8 +457,7 @@
                 "question": "3. Jelölje meg, hogy az alábbi állítás igaz vagy hamis!",
                 "answers": [
                     { "text": "A vállalatértékelés tényezői között nem szerepel a goodwill.", "is_correct": false },
-                    { "text": "A vállalatértékelés csak a pénzáramlás elemzésén alapszik.",
-                        "is_correct": false },
+                    { "text": "A vállalatértékelés csak a pénzáramlás elemzésén alapszik.", "is_correct": false },
                     { "text": "A vállalatértékelés egyik speciális esete a praxisok értékelése.", "is_correct": true }
                 ]
             },
@@ -518,42 +500,526 @@
                     { "text": "A konszernben jogilag nem önálló társaságok egységes irányítás alatt állnak.", "is_correct": true },
                     { "text": "Az önkormányzat lehet egy vállalatcsoport eredeti tulajdonosa.", "is_correct": true }
                 ]
+            },
+            {
+                "question": "1. Válassza ki az alábbiak közül a vállalat alapvető céljait!",
+                "answers": [
+                    { "text": "alapvető cél, hogy a működés legyen jövedelmező", "is_correct": true },
+                    { "text": "alapvető, hogy feleljen meg a munkavállalók igényeinek", "is_correct": true },
+                    { "text": "alapvető, hogy a vállalat által kibocsátott termék vagy szolgáltatás elégítse ki a vevők szükségleteit", "is_correct": true }
+                ]
+            },
+            {
+                "question": "2. Jelölje meg, hogy az alábbi állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A vízió megfogalmazása egy több oldalas dokumentumban történik.", "is_correct": true },
+                    { "text": "A küldetésben a vállalkozások alapvető céljaikat fogalmazzák meg.", "is_correct": true },
+                    { "text": "A küldetés elkészítése a bürokraták, szakalkalmazottak feladatkörébe tartozik.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "3. Válassza ki, hogy kinek a feladatkörébe tartoznak a szakmai stratégiák kidolgozása!",
+                "answers": [
+                    { "text": "a tulajdonosok feladata", "is_correct": false },
+                    { "text": "a törzskari vezetők feladata", "is_correct": false },
+                    { "text": "a funkcionális vezetők feladata", "is_correct": true }
+                ]
+            },
+            {
+                "question": "4. Válassza ki, hogy melyek tartoznak a versenystratégia fő tényezői közé!",
+                "answers": [
+                    { "text": "a vevők alkupozíciója", "is_correct": true },
+                    { "text": "a kiegészítő termékek és azok fenyegetése", "is_correct": true },
+                    { "text": "a szállítók alkupozíciója", "is_correct": true }
+                ]
+            },
+            {
+                "question": "5. Jelölje meg, hogy az alábbi állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "Az összpontosító versenystratégia egyetlen vagy kevés kiválasztott vevőre koncentrál", "is_correct": true },
+                    { "text": "Az összpontosító versenystratégia mindig a legjobb eredményeket hozza a nagyvállalatoknál", "is_correct": false },
+                    { "text": "Az összpontosító versenystratégia egyedi termék/szolgáltatás létrehozására is irányulhat", "is_correct": true }
+                ]
+            },
+            {
+                "question": "6. Válassza ki, hogy az alábbiak közül melyik jellemző a termék megkülönböztetésén alapuló versenystratégiára!",
+                "answers": [
+                    { "text": "a jó minőség", "is_correct": true },
+                    { "text": "az alacsony ár", "is_correct": false },
+                    { "text": "a márkanev ismeretségére való törekvés", "is_correct": true }
+                ]
+            },
+            {
+                "question": "7. A költségvezető stratégia esetén nem jellemző...",
+                "answers": [
+                    { "text": "a magas ár", "is_correct": true },
+                    { "text": "a nagyvállalati méret", "is_correct": true },
+                    { "text": "a márkanévre vonatkozó intenzív reklám", "is_correct": true }
+                ]
+            },
+            {
+                "question": "1. Válassza ki, hogy melyik lehet tervezési időtáv!",
+                "answers": [
+                    { "text": "egyéves", "is_correct": true },
+                    { "text": "operatív", "is_correct": false },
+                    { "text": "azonnali", "is_correct": true }
+                ]
+            },
+            {
+                "question": "2. Válassza ki a különféle időtávú tervekre jellemzőket!",
+                "answers": [
+                    { "text": "készülhetnek összehangoltan", "is_correct": true },
+                    { "text": "általában egymástól függetlenek", "is_correct": false },
+                    { "text": "a stratégiai terv alapján készíthetünk üzleti tervet", "is_correct": true }
+                ]
+            },
+            {
+                "question": "3. Jelölje meg, hogy a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A tervek mindig csak belső használatra készülnek", "is_correct": false },
+                    { "text": "Üzleti terv készülhet hitelfelvételhez.", "is_correct": true },
+                    { "text": "A tervek mindig az egész vállalatra vonatkoznak", "is_correct": false }
+                ]
+            },
+            {
+                "question": "4. Válassza ki az alábbiak közül az üzleti tervre jellemzőket!",
+                "answers": [
+                    { "text": "az üzleti terv igazodik a stratégiai terv előirányzataihoz", "is_correct": true },
+                    { "text": "a vállalati tevékenység egy részének terve", "is_correct": false },
+                    { "text": "mindig egy évre készül", "is_correct": false }
+                ]
+            },
+            {
+                "question": "5. Jelölje meg, hogy a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A stratégiai terv tartalmaz funkcionális fejezeteket.", "is_correct": true },
+                    { "text": "A stratégiai terv időhorizontja általában egy év.",
+                        "is_correct": true },
+                    { "text": "A stratégiai terv tartalmaz hat fejlesztési fejezetet.",
+                        "is_correct": false }
+                ]
+            },
+            {
+                "question": "6. Válassza ki, hogy az alábbiak közül melyek jellemzőek a tervezésre!",
+                "answers": [
+                    { "text": "Mindig hosszú időszakra szól", "is_correct": false },
+                    { "text": "Nem csak a tervek elkészítése fontos", "is_correct": true },
+                    { "text": "Feladatát elláthatja állandó belső szervezet is", "is_correct": true }
+                ]
+            },
+            {
+                "question": "7. Jelölje meg, hogy a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A stratégiai terv tartalmaz funkcionális fejezeteket.", "is_correct": true },
+                    { "text": "A stratégiai terv időhorizontja általában 5-15 év.", "is_correct": false },
+                    { "text": "A stratégiai terv sohasem tartalmaz fejlesztési fejezetet.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "8. Válassza ki, hogy az alábbiak közül melyek jellemzőek a tervezésre!",
+                "answers": [
+                    { "text": "nem csak hosszú időszakra szól", "is_correct": true },
+                    { "text": "csak a tervek elkészítését jelenti",
+                        "is_correct": true },
+                    { "text": "feladatát elláthatja külső szakértő is",
+                        "is_correct": true }
+                ]
+            },
+            {
+                "question": "9. Jelölje meg, hogy a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "Prognózisok készítése része a vállalati tervezés rendszerének", "is_correct": false },
+                    { "text": "A célalkotási folyamat része a vállalati tervezés rendszerének", "is_correct": true },
+                    { "text": "A környezet-elemzés része a vállalati tervezés rendszerének", "is_correct": true }
+                ]
+            },
+            {
+                "question": "1. Válassza ki az alábbiak közül, melyik adja a termelés inputjait!",
+                "answers": [
+                    { "text": "az értékesítés", "is_correct": false },
+                    { "text": "a beszerzés", "is_correct": true },
+                    { "text": "a tervezés", "is_correct": false }
+                ]
+            },
+            {
+                "question": "2. Jelölje meg, hogy az alábbi állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A logisztikai tevékenység nem csak tényleges anyagmozgatást jelent.", "is_correct": true },
+                    { "text": "A logisztikai tevékenység kapcsolódik a termeléshez.", "is_correct": true },
+                    { "text": "A logisztikai tevékenység a beszerzéshez nem kapcsolódik.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "3. Válassza ki, hogy melyik esetben kell közbeszerzési eljárást lefolytatni!",
+                "answers": [
+                    { "text": "minden építési munkánál", "is_correct": false },
+                    { "text": "ha az önkormányzat a törvényi értékhatár feletti építési munkát végeztet", "is_correct": true },
+                    { "text": "minden szolgáltatás igénybevételére, értékhatártól függetlenül", "is_correct": true }
+                ]
+            },
+            {
+                "question": "4. Válassza ki az alábbiak közül a beszerzésre igaz állításokat!",
+                "answers": [
+                    { "text": "a beszerzés polgári jogi szerződés megkötésével lehetséges", "is_correct": true },
+                    { "text": "a beszerzés stratégiai kérdése a venni vagy vásárolni", "is_correct": false },
+                    { "text": "a beszerzés egyik fontos kérdése, hogy egy vagy több szállítót foglalkoztassunk", "is_correct": true }
+                ]
+            },
+            {
+                "question": "5. Jelölje meg, hogy az alábbiak közül melyik állítás igaz vagy hamis!",
+                "answers": [
+                    { "text": "A nagy készletek a termelés ellátását bizonytalanná teszik.", "is_correct": false },
+                    { "text": "A nagy készletek gazdaságtalanná tehetik a termelést.", "is_correct": true },
+                    { "text": "A nagy készletek a termelés ellátását biztonságosabbá teszik.", "is_correct": true }
+                ]
+            },
+            {
+                "question": "6. Válassza ki, hogy az alábbiak közül melyek jelentenek döntési szempontot a termelni-vásárolni között!",
+                "answers": [
+                    { "text": "kereslet nagysága", "is_correct": true },
+                    { "text": "minőségi kérdések", "is_correct": true },
+                    { "text": "gazdasági kérdések", "is_correct": true }
+                ]
+            },
+            {
+                "question": "7. Válassza ki, hogy mely esetekben semmis a szerződés!",
+                "answers": [
+                    { "text": "ha jogszabályba ütközik", "is_correct": true },
+                    { "text": "ha lehetetlen szolgáltatásra irányul", "is_correct": true },
+                    { "text": "ha szóban kötik", "is_correct": false }
+                ]
+            },
+            {
+                "question": "8. Melyik megállapítások helyesek? A logisztikai tevékenység kapcsolódik...",
+                "answers": [
+                    { "text": "a termeléshez", "is_correct": true },
+                    { "text": "a stratégiai tervezéshez", "is_correct": false },
+                    { "text": "az értékesítéshez", "is_correct": true }
+                ]
+            },
+            {
+                "question": "1. Válassza ki az alábbiak közül melyik hagyományos eleme a marketingmixnek!",
+                "answers": [
+                    { "text": "a promóciós politika", "is_correct": true },
+                    { "text": "a jövedelmezőség", "is_correct": false },
+                    { "text": "a teljesítmény (performance)", "is_correct": true }
+                ]
+            },
+            {
+                "question": "2. Jelölje meg a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A marketing eljárás folyamatának első lépése a pozícionálás", "is_correct": true },
+                    { "text": "A marketing szemszögéből a vevő igényei jelentik a kiindulópontot.", "is_correct": false },
+                    { "text": "A piackutatás a marketingtevékenység információs bázisa.", "is_correct": true }
+                ]
+            },
+            {
+                "question": "3. Válassza ki az alábbiak közül melyek a marketingmix hagyományos elemei!",
+                "answers": [
+                    { "text": "a profit", "is_correct": true },
+                    { "text": "az ár", "is_correct": true },
+                    { "text": "a promóció", "is_correct": false }
+                ]
+            },
+            {
+                "question": "4. Válassza ki az alábbiak közül melyek nem a marketingmix klasszikus elemei!",
+                "answers": [
+                    { "text": "partner connection", "is_correct": true },
+                    { "text": "production", "is_correct": false },
+                    { "text": "performance", "is_correct": true }
+                ]
+            },
+            {
+                "question": "5. Jelölje meg a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A controlling a vezetést segítő tevékenység.", "is_correct": true },
+                    { "text": "A controlling főleg ellenőrzési feladatokat lát el.", "is_correct": true },
+                    { "text": "A controlling információfeldolgozást is végez.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "6. Válassza ki az alábbiak közül a controlling funkció jellemzőit!",
+                "answers": [
+                    { "text": "egyik fontos könyvét Horváth Péter írta", "is_correct": false },
+                    { "text": "a gazdasági vezető irányítása alatt áll", "is_correct": true },
+                    { "text": "csak a menedzsment számára készít jelentéseket", "is_correct": false }
+                ]
+            },
+            {
+                "question": "7. Jelölje meg a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A modern vállalatnál a gazdasági vezető irányítása alá tartozik a számvitel.", "is_correct": true },
+                    { "text": "A modern vállalatnál a gazdasági vezető irányítása alá tartozik a controlling.", "is_correct": false },
+                    { "text": "A modern vállalatnál a termelési vezető irányítása alá tartozik a pénzügy.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "8. Válassza ki, hogy az alábbiak közül melyek a számviteli tevékenység eredményei!",
+                "answers": [
+                    { "text": "a mérleg", "is_correct": true },
+                    { "text": "a vállalatértékelés", "is_correct": false },
+                    { "text": "az eredménykimutatás", "is_correct": true }
+                ]
+            },
+            {
+                "question": "1. Válassza ki, hogy melyik tartozik a vállalati személyügyi munka környezeti feltételeihez!",
+                "answers": [
+                    { "text": "a szállítók", "is_correct": false },
+                    { "text": "a munkaerőpiac", "is_correct": true },
+                    { "text": "a logisztikai kultúra", "is_correct": false }
+                ]
+            },
+            {
+                "question": "2. Válassza ki, hogy az alábbiak közül melyek tartoznak a személyügyi funkció szakmai területeihez!",
+                "answers": [
+                    { "text": "toborzás, képzés, bér- és jövedelempolitika", "is_correct": true },
+                    { "text": "karriertervezés", "is_correct": true },
+                    { "text": "érdekvédelem", "is_correct": false }
+                ]
+            },
+            {
+                "question": "3. Válassza ki a munkaerő-gazdálkodás környezeti feltételeihez tartozó elemeket!",
+                "answers": [
+                    { "text": "általános gazdasági feltételek", "is_correct": true },
+                    { "text": "tőkepiaci helyzete", "is_correct": false },
+                    { "text": "jogi szabályozás", "is_correct": true }
+                ]
+            },
+            {
+                "question": "4. Jelölje meg a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "Az innováció mindig a termelési vezető irányítása alatt áll.", "is_correct": true },
+                    { "text": "Az innováció marketing indíttatású is lehet.", "is_correct": false },
+                    { "text": "Az innováció folyamata csigavonallal írható le.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "5. Jelölje meg a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "Az innováció nehezen integrálható vállalati funkció.", "is_correct": false },
+                    { "text": "Az innováció egy része a kutatás-fejlesztési tevékenység.", "is_correct": true },
+                    { "text": "Az innováció kizárólag műszaki fogalom.", "is_correct": true }
+                ]
+            },
+            {
+                "question": "6. Jelölje meg a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A vállalati információs rendszerekkel szemben támasztott követelmények közé tartozik, hogy - a vezetők informáltság-szintje a felelősségükkel összhangban legyen.", "is_correct": true },
+                    { "text": "- teljesítse az előírt adatszolgáltatási kötelezettségeket.", "is_correct": true },
+                    { "text": "A vállalati információs rendszerekkel mindig egyedi fejlesztésűek.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "7. Válassza ki a megfelelő információt!",
+                "answers": [
+                    { "text": "a valóságot tükrözi", "is_correct": true },
+                    { "text": "idejében érkezik", "is_correct": true },
+                    { "text": "nincs meghatározott tartalma", "is_correct": false }
+                ]
+            },
+            {
+                "question": "1. Válassza ki a vállalati szabványos rendszerek jellemzőit!",
+                "answers": [
+                    { "text": "alapdokumentumuk a kézikönyv", "is_correct": true },
+                    { "text": "nem tanúsíttathatók", "is_correct": false },
+                    { "text": "funkciókat keresztező tevékenységek", "is_correct": true }
+                ]
+            },
+            {
+                "question": "2. Jelölje meg a következő állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A minőségügyi rendszer szabványa az ISO 9001.", "is_correct": true },
+                    { "text": "A környezetirányítási rendszer szabványa az MSZ 28001.", "is_correct": true },
+                    { "text": "A munkahelyi egészség és biztonság követelményszabványa az ISO 9001.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "3. Válassza ki az alábbiak közül az ISO 9001-es szabvány követelményeit!",
+                "answers": [
+                    { "text": "a vevői igények figyelembe vétele", "is_correct": true },
+                    { "text": "a környezeti politika kidolgozása", "is_correct": false },
+                    { "text": "a mérőeszközök kezelése", "is_correct": false }
+                ]
+            },
+            {
+                "question": "4. Válassza ki az alábbiak közül a környezetirányítás szabványát!",
+                "answers": [
+                    { "text": "ISO 14004", "is_correct": false },
+                    { "text": "ISO 14001", "is_correct": true },
+                    { "text": "ISO 9004", "is_correct": false }
+                ]
+            },
+            {
+                "question": "5. Válassza ki az alábbiak közül az ISO 14001-es szabvány követelményeit!",
+                "answers": [
+                    { "text": "környezetpolitika kidolgozása", "is_correct": true },
+                    { "text": "végrehajtás és működés szabályozása", "is_correct": false },
+                    { "text": "minőségi vezető kinevezése", "is_correct": false }
+                ]
+            },
+            {
+                "question": "6. Jelölje meg, hogy az alábbi állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A minőségi rendszer működését külső és belső auditokkal ellenőrzik.", "is_correct": true },
+                    { "text": "A tanúsítást csak független tanácsadó végezheti.", "is_correct": true },
+                    { "text": "A rendszerek közvetlen irányítását mindig a legfelső vezető végzi.", "is_correct": false }
+                ]
+            },
+            {
+                "question": "7. Jelölje meg, hogy az alábbi állítások közül melyik igaz vagy hamis!",
+                "answers": [
+                    { "text": "A munkahelyi egészség rendszere az ISO 9001 szabvány szerint építhető ki.", "is_correct": false },
+                    { "text": "A munkahelyi egészség és biztonság rendszere nem tanúsíttatható.", "is_correct": false },
+                    { "text": "A munkahelyi egészségi rendszer közvetlen irányítását a legfelső vezető végzi.", "is_correct": false }
+                ]
             }
         ];
 
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answeredCorrectlyCount = 0;
+
         const quizContainer = document.getElementById('quiz-container');
+        const questionText = document.getElementById('question-text');
+        const answersContainer = document.getElementById('answers-container');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const submitButton = document.getElementById('submit-button');
+        const nextButton = document.getElementById('next-button');
+        const resultsContainer = document.getElementById('results-container');
+        const scoreText = document.getElementById('score-text');
+        const restartButton = document.getElementById('restart-button');
 
-        quizData.forEach((q, index) => {
-            const questionCard = document.createElement('div');
-            questionCard.className = 'question-card p-6 rounded-lg mb-6';
+        // Function to display the current question
+        function displayQuestion() {
+            // Clear previous content and reset visibility
+            answersContainer.innerHTML = '';
+            feedbackMessage.classList.add('hidden');
+            feedbackMessage.classList.remove('feedback-correct', 'feedback-incorrect');
+            submitButton.classList.remove('hidden');
+            submitButton.disabled = true; // Disable submit until an answer is selected
+            nextButton.classList.add('hidden');
+            nextButton.disabled = true; // Ensure next is disabled initially
 
-            const questionText = document.createElement('h2');
-            questionText.className = 'text-xl font-semibold text-gray-900 mb-4';
-            questionText.textContent = q.question;
-            questionCard.appendChild(questionText);
+            if (currentQuestionIndex < quizData.length) {
+                const question = quizData[currentQuestionIndex];
+                questionText.textContent = question.question;
 
-            const answersContainer = document.createElement('div');
-            answersContainer.className = 'space-y-3';
+                // Determine input type based on number of correct answers
+                const correctAnswersCount = question.answers.filter(a => a.is_correct).length;
+                const inputType = correctAnswersCount === 1 ? 'radio' : 'checkbox';
+                const inputShapeClass = inputType === 'radio' ? 'rounded-full' : 'rounded-sm'; // Tailwind classes for shape
 
-            q.answers.forEach(answer => {
-                const answerOption = document.createElement('div');
-                // Apply base styling
-                answerOption.className = 'answer-option p-3 rounded-md cursor-pointer text-gray-700';
+                question.answers.forEach((answer, index) => {
+                    const label = document.createElement('label');
+                    label.className = 'answer-option-label relative text-gray-700';
 
-                // Add correct/incorrect styling based on 'is_correct'
+                    const input = document.createElement('input');
+                    input.type = inputType;
+                    input.name = 'answer-' + currentQuestionIndex; // Unique name for each question's radio group
+                    input.value = index; // Store index for easy lookup
+                    input.className = `answer-input ${inputShapeClass} appearance-none border border-gray-400 bg-white checked:bg-blue-500 checked:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none transition-colors duration-200`;
+
+                    // Add event listener to enable submit button when an answer is selected
+                    input.addEventListener('change', () => {
+                        submitButton.disabled = false;
+                    });
+
+                    const span = document.createElement('span');
+                    span.textContent = answer.text;
+                    span.className = 'text-lg flex-grow'; // Allow text to grow
+
+                    label.appendChild(input);
+                    label.appendChild(span);
+                    answersContainer.appendChild(label);
+                });
+            } else {
+                showResults();
+            }
+        }
+
+        // Function to check the selected answer(s)
+        function checkAnswer() {
+            submitButton.disabled = true; // Disable submit after checking
+            nextButton.classList.remove('hidden');
+            nextButton.disabled = false; // Enable next button
+
+            const question = quizData[currentQuestionIndex];
+            const selectedAnswers = Array.from(answersContainer.querySelectorAll('input:checked')).map(input => parseInt(input.value));
+            const correctAnswers = question.answers.map((answer, index) => answer.is_correct ? index : -1).filter(index => index !== -1);
+
+            let isCorrect = true;
+            let correctCount = 0;
+
+            // Check if all correct answers are selected and no incorrect ones
+            if (selectedAnswers.length !== correctAnswers.length) {
+                isCorrect = false;
+            } else {
+                isCorrect = correctAnswers.every(correctIndex => selectedAnswers.includes(correctIndex)) &&
+                            selectedAnswers.every(selectedIndex => correctAnswers.includes(selectedIndex));
+            }
+
+            // Update score
+            if (isCorrect) {
+                answeredCorrectlyCount++;
+                feedbackMessage.textContent = 'Correct! 🎉';
+                feedbackMessage.classList.add('feedback-correct');
+            } else {
+                feedbackMessage.textContent = 'Incorrect! 😔';
+                feedbackMessage.classList.add('feedback-incorrect');
+            }
+            feedbackMessage.classList.remove('hidden');
+
+            // Highlight answers visually
+            question.answers.forEach((answer, index) => {
+                const label = answersContainer.querySelector(`label:nth-child(${index + 1})`);
+                const input = label.querySelector('input');
+                
+                input.disabled = true; // Disable all inputs after submission
+
                 if (answer.is_correct) {
-                    answerOption.classList.add('correct');
-                    answerOption.innerHTML = `&#10003; ${answer.text}`; // Checkmark for correct
-                } else {
-                    answerOption.classList.add('incorrect');
-                    answerOption.innerHTML = `&#10007; ${answer.text}`; // X mark for incorrect
+                    label.classList.add('bg-green-100', 'border-green-400', 'text-green-800');
+                    input.classList.remove('checked:bg-blue-500', 'checked:border-blue-500');
+                    input.classList.add('checked:bg-green-600', 'checked:border-green-600');
+                } else if (selectedAnswers.includes(index)) { // User selected an incorrect answer
+                    label.classList.add('bg-red-100', 'border-red-400', 'text-red-800');
+                    input.classList.remove('checked:bg-blue-500', 'checked:border-blue-500');
+                    input.classList.add('checked:bg-red-600', 'checked:border-red-600');
                 }
-
-                answersContainer.appendChild(answerOption);
             });
-            questionCard.appendChild(answersContainer);
-            quizContainer.appendChild(questionCard);
+        }
+
+        // Function to move to the next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Function to show quiz results
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            const percentage = (answeredCorrectlyCount / quizData.length) * 100;
+            scoreText.textContent = `You answered ${answeredCorrectlyCount} out of ${quizData.length} questions correctly. (${percentage.toFixed(2)}%)`;
+        }
+
+        // Event Listeners
+        submitButton.addEventListener('click', checkAnswer);
+        nextButton.addEventListener('click', nextQuestion);
+        restartButton.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            answeredCorrectlyCount = 0;
+            resultsContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            displayQuestion();
         });
+
+        // Initial load
+        window.onload = displayQuestion;
     </script>
 </body>
 </html>
+
