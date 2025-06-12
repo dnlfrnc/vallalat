@@ -14,28 +14,27 @@
         .quiz-card {
             background-color: #ffffff;
             border: 1px solid #e2e8f0; /* Light gray border */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s ease-in-out;
-            min-height: 400px; /* Ensure cards have a minimum height */
         }
         .answer-option-label {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 0.8rem; /* Reduced padding */
             border: 1px solid #cbd5e1;
-            border-radius: 0.5rem; /* rounded-lg */
+            border-radius: 0.375rem; /* rounded-md */
             background-color: #f8fafc;
             transition: all 0.2s ease-in-out;
             cursor: pointer;
-            margin-bottom: 0.75rem; /* space-y-3 equivalent */
+            margin-bottom: 0.5rem; /* space-y-2 equivalent */
         }
         .answer-option-label:hover {
             background-color: #e2e8f0;
             border-color: #94a3b8;
         }
         .answer-input[type="radio"], .answer-input[type="checkbox"] {
-            width: 1.25rem;
-            height: 1.25rem;
+            width: 1rem; /* Smaller */
+            height: 1rem; /* Smaller */
             margin-right: 0.75rem;
             flex-shrink: 0;
             appearance: none;
@@ -44,40 +43,27 @@
             transition: all 0.2s ease-in-out;
         }
         .answer-input[type="radio"] {
-            border-radius: 50%; /* Circle for radio buttons */
+            border-radius: 50%;
         }
         .answer-input[type="radio"]:checked {
-            background-color: #3b82f6; /* Blue for checked */
+            background-color: #3b82f6;
             border-color: #3b82f6;
-            box-shadow: inset 0 0 0 4px #fff;
+            box-shadow: inset 0 0 0 3px #fff; /* Smaller inset */
         }
         .answer-input[type="checkbox"] {
-            border-radius: 0.25rem; /* Square for checkboxes */
+            border-radius: 0.25rem;
         }
         .answer-input[type="checkbox"]:checked {
-            background-color: #3b82f6; /* Blue for checked */
+            background-color: #3b82f6;
             border-color: #3b82f6;
             background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
         }
 
-        /* Styles for feedback */
-        .feedback-message {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            text-align: center;
-        }
-        .feedback-correct {
-            background-color: #d1fae5; color: #065f46; border: 1px solid #34d399;
-        }
-        .feedback-incorrect {
-            background-color: #fee2e2; color: #991b1b; border: 1px solid #ef4444;
-        }
         .submit-btn, .next-btn, .restart-btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 700;
+            padding: 0.6rem 1.25rem; /* Reduced padding */
+            border-radius: 0.375rem; /* rounded-md */
+            font-weight: 600; /* Slightly less bold */
+            font-size: 0.875rem; /* text-sm */
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -108,8 +94,6 @@
         .score-display {
             background-color: #ecfeff; color: #0f766e; border: 1px solid #2dd4bf;
         }
-
-        /* Styles for highlighting correct/incorrect answers */
         .answer-option-label.correct-highlight {
             background-color: #d1fae5; border-color: #34d399; color: #065f46;
         }
@@ -118,34 +102,29 @@
         }
     </style>
 </head>
-<body class="p-4 sm:p-6 md:p-8">
-    <div class="max-w-4xl mx-auto">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">
-                Vállalatgazdaságtan
+<body class="p-2 sm:p-4">
+    <div class="max-w-md mx-auto"> <header class="text-center mb-4"> <h1 class="text-2xl sm:text-3xl font-semibold text-gray-800"> Vállalatgazdaságtan
             </h1>
         </header>
 
-        <div id="quiz-container" class="quiz-card p-6 sm:p-8 rounded-lg relative">
-            <p class="text-sm text-gray-500 mb-4">Question <span id="current-question-number"></span> / <span id="total-quiz-questions"></span></p>
-            <h2 id="question-text" class="text-xl sm:text-2xl font-semibold text-gray-900 mb-6"></h2>
-            <div id="answers-container" class="space-y-3"></div>
-            <div id="feedback-message" class="feedback-message hidden"></div>
-            <div class="flex flex-col sm:flex-row justify-between items-center mt-8 space-y-4 sm:space-y-0">
+        <div id="quiz-container" class="quiz-card p-4 sm:p-5 rounded-lg relative">
+            <p class="text-xs text-gray-500 mb-2">Question <span id="current-question-number"></span> / <span id="total-quiz-questions"></span></p>
+            <h2 id="question-text" class="text-base font-semibold text-gray-900 mb-4"></h2> <div id="answers-container" class="space-y-2"></div>
+            <div class="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-3 sm:space-y-0">
                 <button id="submit-button" class="submit-btn w-full sm:w-auto" disabled>Submit Answer</button>
                 <button id="next-button" class="next-btn w-full sm:w-auto hidden" disabled>Next Question &rarr;</button>
             </div>
         </div>
 
-        <div id="results-container" class="quiz-card p-6 sm:p-8 rounded-lg text-center hidden">
-            <h2 class="text-2xl sm:text-3xl font-semibold text-gray-900 mb-4">Quiz Completed!</h2>
-            <p id="score-text" class="text-xl sm:text-2xl font-bold score-display p-4 rounded-lg"></p>
-            <button id="restart-button" class="restart-btn mt-6 w-full sm:w-auto">Restart Quiz</button>
+        <div id="results-container" class="quiz-card p-4 sm:p-6 rounded-lg text-center hidden">
+            <h2 class="text-xl sm:text-2xl font-semibold text-gray-900 mb-3">Quiz Completed!</h2>
+            <p id="score-text" class="text-base font-bold score-display p-3 rounded-lg"></p>
+            <button id="restart-button" class="restart-btn mt-4 w-full sm:w-auto">Restart Quiz</button>
         </div>
     </div>
-        
+
     <script>
-        // ORIGINAL MULTIPLE CHOICE QUESTIONS
+        // Quiz data remains unchanged...
         const allQuizData = [
             // Category: Fundamentals & Legal
             { "question": "Milyen jogi formában működhet a vállalkozás?", "answers": [{ "text": "gazdasági társaságként", "is_correct": true }, { "text": "önkormányzatként", "is_correct": false }, { "text": "alkalmazottként", "is_correct": false }], "category": "Fundamentals & Legal" },
@@ -224,7 +203,6 @@
             { "question": "Jelölje meg, hogy az alábbi állítások közül melyik igaz! (Munkahelyi egészség)", "answers": [{ "text": "A munkahelyi egészség rendszere az ISO 9001 szabvány szerint építhető ki.", "is_correct": true }, { "text": "A munkahelyi egészség és biztonság rendszere nem tanúsíttatható.", "is_correct": false }, { "text": "A munkahelyi egészségi rendszer közvetlen irányítását a legfelső vezető végzi.", "is_correct": false }], "category": "Quality & Standards" }
         ];
 
-        // NEW TRUE/FALSE QUESTIONS
         const trueFalseQuestionGroups = [
             { "group_name": "1. Csoport: Vállalatgazdaságtan alapjai", "questions": [ { "question": "A vállalatgazdaságtan kizárólag a profitorientált vállalatok hatékony működtetésével foglalkozik, a pszichológiai és technológiai aspektusokat más tudományterületekre hagyja.", "answer": false }, { "question": "A klasszikus (neoklasszikus) vállalatelmélet szerint a vállalat belső működésének részletes elemzése kulcsfontosságú a profitmaximalizálás megértéséhez.", "answer": false }, { "question": "A megbízó-ügynök elmélet az információs aszimmetria jelenségét vizsgálja a tulajdonosok és a vállalat külső érintettjei, például a vevők viszonyában.", "answer": false }, { "question": "Az intézményi vállalatelmélet szerint egy vállalat szervezeti keretei addig terjednek, amíg a tranzakciókat a piacon olcsóbban tudja lebonyolítani, mint a szervezeten belül.", "answer": false }, { "question": "Az erőforrásalapú elmélet szerint a versenyelőny forrása bármely, a vállalat által birtokolt erőforrás lehet, függetlenül annak egyediségétől vagy utánozhatóságától.", "answer": false }, { "question": "Az üzleti vállalkozás alapvető célja a profitmaximalizálás, míg a fogyasztói igények kielégítése csupán ennek egy másodlagos, lehetséges következménye.", "answer": false }, { "question": "A vállalat kettős értékteremtése azt jelenti, hogy a tulajdonosok és a menedzserek számára is egyidejűleg hoz létre értéket.", "answer": false }, { "question": "Egyéni vállalkozás alapítása esetén a tulajdonos felelőssége kizárólag a vállalkozásba bevitt vagyona mértékéig terjed.", "answer": false }, { "question": "A menedzser típusú vállalatalapító jellemzően saját vagy rokoni finanszírozásra támaszkodik, és a személyes függetlenség motiválja leginkább.", "answer": false }, { "question": "A csődeljárás minden esetben a vállalat felszámolásához és jogutód nélküli megszűnéséhez vezet.", "answer": false } ] },
             { "group_name": "2. Csoport: Piac, verseny, stratégia", "questions": [ { "question": "A tökéletes verseny piacán a vállalatok ármeghatározók, mivel homogén termékeket kínálnak.", "answer": false }, { "question": "Monopólium esetén a termék könnyen helyettesíthető más termékekkel, de a piacra való belépés korlátozott.", "answer": false }, { "question": "A kilépési korlátok közé tartozik a magas tőkeszükséglet és az állami szabályozás, például a vámok.", "answer": false }, { "question": "A kartell a verseny legális formája, ahol a vállalatok a verseny tisztaságának fenntartása érdekében működnek együtt.", "answer": false }, { "question": "A nyomásos (vevői) piacon a kínálat tartósan meghaladja a keresletet, ezért az eladók vannak erőfölényben.", "answer": false }, { "question": "Az állam mint szabályozó hatóság közvetlenül részt vesz a piacon saját, profitorientált vállalatai révén.", "answer": false }, { "question": "A vállalati szintű stratégia az egyes vállalati területek, mint a marketing vagy a pénzügy, operatív céljainak meghatározására fókuszál.", "answer": false }, { "question": "Az adaptív stratégiai megközelítésre a 'nagy lépések politikája' jellemző, ahol a vállalat aktívan befolyásolja a környezeti eseményeket.", "answer": false }, { "question": "Mintzberg 5P modelljében a 'Pattern' (Minta) egy tudatosan, előre megfogalmazott cselekvési irányt jelent a jövőre nézve.", "answer": false }, { "question": "A megvalósult stratégia a szándékolt stratégia és a menet közben, a váratlan helyzetekre reagálva kialakuló (emergent) stratégia együtteséből jön létre.", "answer": true } ] },
@@ -249,7 +227,6 @@
         const quizContainer = document.getElementById('quiz-container');
         const questionText = document.getElementById('question-text');
         const answersContainer = document.getElementById('answers-container');
-        const feedbackMessage = document.getElementById('feedback-message');
         const submitButton = document.getElementById('submit-button');
         const nextButton = document.getElementById('next-button');
         const resultsContainer = document.getElementById('results-container');
@@ -258,7 +235,6 @@
         const currentQuestionNumberSpan = document.getElementById('current-question-number');
         const totalQuizQuestionsSpan = document.getElementById('total-quiz-questions');
 
-        // Function to shuffle an array (Fisher-Yates shuffle)
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -266,46 +242,40 @@
             }
         }
 
-        // Function to select questions for the quiz
         function generateQuizQuestions() {
-            // Part 1: Select 20 multiple-choice questions
             shuffleArray(allQuizData);
             const multipleChoicePart = allQuizData.slice(0, MULTIPLE_CHOICE_COUNT);
 
-            // Part 2: Select 10 True/False questions (one from each group)
             const trueFalsePart = [];
             trueFalseQuestionGroups.forEach(group => {
-                // Pick one random question from the group
                 const randomTfQuestion = group.questions[Math.floor(Math.random() * group.questions.length)];
-                
-                // Format it into the standard quiz structure
                 const formattedQuestion = {
                     question: randomTfQuestion.question,
                     answers: [
                         { text: 'Igaz', is_correct: randomTfQuestion.answer === true },
                         { text: 'Hamis', is_correct: randomTfQuestion.answer === false }
                     ],
-                    category: group.group_name // Use group name as category
+                    category: group.group_name
                 };
                 trueFalsePart.push(formattedQuestion);
             });
 
-            // Combine both parts and shuffle the final list
             let finalQuestions = [...multipleChoicePart, ...trueFalsePart];
             shuffleArray(finalQuestions);
             selectedQuizQuestions = finalQuestions;
-            
             totalQuizQuestionsSpan.textContent = TOTAL_QUIZ_QUESTIONS;
         }
 
-
-        // Function to display the current question
         function displayQuestion() {
             answersContainer.innerHTML = '';
-            feedbackMessage.classList.add('hidden');
-            feedbackMessage.className = 'feedback-message hidden'; // Reset all feedback classes
-            submitButton.classList.remove('hidden');
+            
+            // Reset submit button state
+            submitButton.textContent = 'Submit Answer';
+            submitButton.style.backgroundColor = ''; // Reverts to CSS defined style
+            submitButton.style.borderColor = ''; // Reverts to CSS defined style
             submitButton.disabled = true;
+            
+            submitButton.classList.remove('hidden');
             nextButton.classList.add('hidden');
             nextButton.disabled = true;
 
@@ -335,7 +305,7 @@
 
                     const span = document.createElement('span');
                     span.textContent = answer.text;
-                    span.className = 'text-base flex-grow';
+                    span.className = 'text-sm flex-grow'; // Smaller text for answers
 
                     label.appendChild(input);
                     label.appendChild(span);
@@ -346,7 +316,6 @@
             }
         }
 
-        // Function to check the selected answer(s)
         function checkAnswer() {
             submitButton.disabled = true;
             nextButton.classList.remove('hidden');
@@ -359,16 +328,16 @@
 
             let isCurrentQuestionCorrect = selectedAnswersValues.length === correctAnswersIndices.length &&
                                          correctAnswersIndices.every(correctIndex => selectedAnswersValues.includes(correctIndex));
-
+            
+            // Provide feedback on the submit button itself
             if (isCurrentQuestionCorrect) {
                 answeredCorrectlyCount++;
-                feedbackMessage.textContent = 'Correct! 🎉';
-                feedbackMessage.classList.add('feedback-correct');
+                submitButton.textContent = 'Correct! 🎉';
+                submitButton.style.backgroundColor = '#10b981'; // Tailwind green-500
             } else {
-                feedbackMessage.textContent = 'Incorrect! 😔';
-                feedbackMessage.classList.add('feedback-incorrect');
+                submitButton.textContent = 'Incorrect! 😔';
+                submitButton.style.backgroundColor = '#ef4444'; // Tailwind red-500
             }
-            feedbackMessage.classList.remove('hidden');
 
             // Highlight answers and disable all inputs
             question.answers.forEach((answer, index) => {
@@ -384,7 +353,6 @@
             });
         }
 
-        // Function to move to the next question
         function nextQuestion() {
             currentQuestionIndex++;
             if (currentQuestionIndex < selectedQuizQuestions.length) {
@@ -394,7 +362,6 @@
             }
         }
 
-        // Function to show quiz results
         function showResults() {
             quizContainer.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
@@ -411,12 +378,10 @@
             displayQuestion();
         }
 
-        // Event Listeners
         submitButton.addEventListener('click', checkAnswer);
         nextButton.addEventListener('click', nextQuestion);
         restartButton.addEventListener('click', startNewQuiz);
 
-        // Initial quiz setup
         window.onload = startNewQuiz;
     </script>
 </body>
